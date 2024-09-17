@@ -1,0 +1,25 @@
+{
+  "name": "devops-tp1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "nestorsantander",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nestorsantander/devops-tp1.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nestorsantander/devops-tp1/issues"
+  },
+  "homepage": "https://github.com/nestorsantander/devops-tp1#readme",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.0",
+    "redis": "^4.7.0"
+  }
+}
