@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            width: 80%;
+            border: 2px solid #000;
+        }
+
+        /* Estilos de la sección izquierda */
+        .add-task-section {
+            width: 40%;
+            padding: 20px;
+            border-right: 2px solid #000;
+        }
+
+        .add-task-section h2 {
+            text-align: center;
+        }
+
+        .add-task-section input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            box-sizing: border-box;
+        }
+
+        .add-task-section button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        /* Estilos de la sección derecha */
+        .task-list-section {
+            width: 60%;
+            padding: 20px;
+        }
+
+        .task-list-section h2 {
+            text-align: center;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #000;
+            margin-bottom: 10px;
+        }
+
+        .task-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .task-item button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sección para agregar tareas -->
+        <div class="add-task-section">
+            <h2>AGREGAR TAREA</h2>
+            <input type="text" placeholder="Escribe una tarea..." id="new-task">
+            <button onclick="addTask()">Agregar nueva tarea</button>
+            <button id="delete-all-tasks" onclick="deleteAllTasks()">Vaciar lista de tareas</button>
+        </div>
+
+        <!-- Sección de lista de tareas -->
+        <div class="task-list-section">
+            <h2>LISTA DE TAREAS</h2>
+            <div id="task-list">
+                <!-- Aquí se agregarán las tareas -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Obtener la lista de tareas desde el servidor
+        function loadTasks() {
+            fetch('/tasks')
+                .then(response => response.json())
+                .then(tasks => {
+                    const taskList = document.getElementById('task-list');
+                    taskList.innerHTML = '';
+                    tasks.forEach((task) => {
+                        const taskItem = document.createElement('div');
+                        taskItem.classList.add('task-item');
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.checked = task.completed; // Establecer el estado del checkbox
+
+                        // Agregar un evento para manejar el cambio de estado
+                        checkbox.onchange = () => {
+                            updateTaskCompletion(task.id, checkbox.checked); // Llamar a la función para actualizar el estado
+                        };
+
+                        const taskLabel = document.createElement('span');
+                        taskLabel.textContent = task.text; // Asegúrate de que el texto esté disponible
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Eliminar tarea';
+                        deleteButton.onclick = () => deleteTask(task.id);
+
+                        taskItem.appendChild(checkbox);
+                        taskItem.appendChild(taskLabel);
+                        taskItem.appendChild(deleteButton);
+
+                        taskList.appendChild(taskItem);
+                    });
+                });
+        }
+
+        // Agregar una nueva tarea
+        function addTask() {
+            const newTaskInput = document.getElementById('new-task');
+            const taskText = newTaskInput.value;
+            if (taskText.trim() === '') {
+                alert('Por favor ingresa una tarea.');
+                return;
+            }
+            fetch('/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ task: taskText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Tarea agregada:', data);
+                newTaskInput.value = ''; // Limpiar el campo de texto
+                loadTasks(); // Cargar las tareas de Redis nuevamente (implementación necesaria)
+            })
+            .catch(err => {
+                console.error('Error agregando la tarea:', err);
+            });
+        }
+
+        // Eliminar una tarea específica
+        function deleteTask(id) {
+            fetch(`/tasks/${id}`, {
+                method: 'DELETE'
+            }).then(() => {
+                loadTasks();
+            }).catch(err => {
+                console.error('Error eliminando la tarea:', err);
+            });
+        }
+        // Vaciar toda la lista de tareas
+        function deleteAllTasks() {
+            fetch('/tasks', {
+                method: 'DELETE'
+            })
+            .then(() => {
+                loadTasks();  // Recargar la lista de tareas después de eliminarlas
+            })
+            .catch(err => {
+                console.error('Error eliminando todas las tareas:', err);
+            });
+        }
+
+        // Para enviar el nuevo estado al servidor
+        function updateTaskCompletion(id, completed) {
+            fetch(`/tasks/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ completed })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al actualizar la tarea');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Estado de la tarea actualizado:', data);
+            })
+            .catch(err => {
+                console.error('Error actualizando la tarea:', err);
+            });
+        }
+
+        // Cargar la lista de tareas al iniciar
+        loadTasks();
+    </script>
+</body>
+</html>
