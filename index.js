@@ -8,7 +8,7 @@ const port = 3000;
 
 // Configuración de Redis
 const client = createClient({
-    url: 'redis://localhost:7001'
+    url: 'redis://contRedis:6379'
 });
 
 client.on('error', (err) => {
