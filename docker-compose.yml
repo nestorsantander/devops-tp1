@@ -1,0 +1,76 @@
+volumes:
+  prometheus-data: {}
+  grafana-data: {}
+services:
+  contRedis:
+    image: redis/redis-stack
+    container_name: contRedis
+    ports:
+      - "7001:6379"
+    networks:
+      - mired
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - mired
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--web.enable-lifecycle'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    ports:
+      - "9100:9100"
+    networks:
+      - mired
+    volumes:
+      - '/:/host:ro'
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - mired
+  redis_exporter:
+    image: oliver006/redis_exporter
+    container_name: redis_exporter
+    ports:
+      - "9121:9121"
+    networks:
+      - mired
+    environment:
+      REDIS_ADDR: "contRedis:6379"
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3005:3000"
+    networks:
+      - mired
+    volumes:
+      - grafana-data:/var/lib/grafana
+  devops-tp1:
+    depends_on:
+      - contRedis
+    build: .
+    container_name: devops-tp1
+    ports:
+      - "3000:3000"
+    networks:
+      - mired
+networks:
+  mired:
+    driver: bridge

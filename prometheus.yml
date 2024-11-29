@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 1s # By default, scrape targets every 1 second.
+  external_labels:
+    monitor: 'codelab-monitor'
+scrape_configs:
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis_exporter:9121']
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node_exporter:9100']

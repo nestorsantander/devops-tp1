@@ -83,6 +83,12 @@
             <input type="text" placeholder="Escribe una tarea..." id="new-task">
             <button onclick="addTask()">Agregar nueva tarea</button>
             <button id="delete-all-tasks" onclick="deleteAllTasks()">Vaciar lista de tareas</button>
+            <button id="cpuLoadBtn">Generar carga CPU</button>
+            <button id="stopCpuLoadBtn">Detener carga CPU</button>
+            <button id="ramLoadBtn">Generar carga RAM</button>
+            <button id="stopRamLoadBtn">Detener carga RAM</button>
+            <button id="redisLoadBtn">Generar carga Redis</button>
+            <button id="stopRedisLoadBtn">Detener carga Redis</button>
         </div>
 
         <!-- Sección de lista de tareas -->
@@ -202,6 +208,46 @@
                 console.error('Error actualizando la tarea:', err);
             });
         }
+        document.getElementById('cpuLoadBtn').addEventListener('click', () => {
+            fetch('/generate-cpu-load')
+            .then((res) => res.json())
+            .then((data) => console.log(data.message))
+            .catch((err) => console.error(err));
+        });
+
+        document.getElementById('ramLoadBtn').addEventListener('click', () => {
+            fetch('/generate-ram-load')
+            .then((res) => res.json())
+            .then((data) => console.log(data.message))
+            .catch((err) => console.error(err));
+        });
+
+        document.getElementById('redisLoadBtn').addEventListener('click', () => {
+            fetch('/generate-redis-write-load')
+            .then((res) => res.json())
+            .then((data) => console.log(data.message))
+            .catch((err) => console.error(err));
+        });
+        document.getElementById('stopCpuLoadBtn').addEventListener('click', () => {
+            fetch('/stop-cpu-load')
+            .then((res) => res.json())
+            .then((data) => console.log(data.message))
+            .catch((err) => console.error(err));
+        });
+
+        document.getElementById('stopRamLoadBtn').addEventListener('click', () => {
+            fetch('/stop-ram-load')
+            .then((res) => res.json())
+            .then((data) => console.log(data.message))
+            .catch((err) => console.error(err));
+        });
+
+        document.getElementById('stopRedisLoadBtn').addEventListener('click', () => {
+            fetch('/stop-redis-load')
+            .then((res) => res.json())
+            .then((data) => console.log(data.message))
+            .catch((err) => console.error(err));
+        });
 
         // Cargar la lista de tareas al iniciar
         loadTasks();
