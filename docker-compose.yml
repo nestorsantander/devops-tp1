@@ -66,6 +66,7 @@ services:
     depends_on:
       - contRedis
     build: .
+    image: nestorsantander/devops-tp2:latest
     container_name: devops-tp1
     ports:
       - "3000:3000"
