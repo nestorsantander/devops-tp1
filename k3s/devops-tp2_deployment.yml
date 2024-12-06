@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devopstp1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: devops-tp1
+        image: nestorsantander/devops-tp2:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REDIS_HOST
+          value: "contRedis"  # Nombre del servicio Redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-tp1
+spec:
+  type: NodePort
+  selector:
+    app: webapp
+  ports:
+  - port: 3000
+    targetPort: 3000 
+    nodePort: 30000  # Puerto en el nodo host, puedes cambiarlo si es necesario
